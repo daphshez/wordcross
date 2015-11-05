@@ -6,7 +6,7 @@ $(document).ready(function () {
     var stroke = 10;
     // types: none, rotation_180, reflection_xy
     var symmetry = 'rotation_180';
-    //var dir = $('body').attr('dir');
+    var rtl = $('body').attr('dir') == 'rtl';
 
     var size = stroke * (gridSize + 1) + squareSize * gridSize;
 
@@ -70,17 +70,20 @@ $(document).ready(function () {
 
     function is_numbered(d, id) {
         if (is_black(id)) return false;
-        // horizontals
-        var x = d.x;
-        // case 1: first in row
-        if (x == 0 && !is_black(id+1)) return true;
-        // case 2: 2nd in row - to (n-1)th in row
-        if (x > 0 && x < gridSize -1 && is_black(id-1) && !is_black(id+1)) return true;
 
+            // horizontals
+        if (rtl) {
+            if (d.x == gridSize - 1 && !is_black(id - 1)) return true;
+            if (d.x > 0 && d.x < gridSize - 1 && is_black(id + 1) && is_black(id - 1)) return true;
+        } else {
+            // case 1: first in row
+            if (d.x == 0 && !is_black(id + 1)) return true;
+            // case 2: 2nd in row - to (n-1)th in row
+            if (d.x > 0 && d.x < gridSize - 1 && is_black(id - 1) && !is_black(id + 1)) return true;
+        }
         // verticals
-        var y = d.y;
-        if (y == 0 && !is_black(id+gridSize)) return true;
-        if (y > 0 && y < gridSize - 1 && is_black(id-gridSize) && !is_black(id+gridSize)) return true;
+        if (d.y == 0 && !is_black(id + gridSize)) return true;
+        if (d.y > 0 && d.y < gridSize - 1 && is_black(id - gridSize) && !is_black(id + gridSize)) return true;
 
         // in all other cases...
         return false;
@@ -97,7 +100,12 @@ $(document).ready(function () {
             .filter(is_numbered)
             .attr('class', 'number')
             .text(function(d, i) { return i; })
-            .attr('x', function(d){ return xPosition(d) + 5; })
+            .attr('x', function(d){
+                if (rtl) {
+                    return xPosition(d) + squareSize - 7;
+                }
+                return xPosition(d) + 5;
+            })
             .attr('y', function(d) { return yPosition(d) + stroke + 5});
         console.log(texts);
     }
