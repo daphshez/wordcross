@@ -87,9 +87,19 @@ $(document).ready(function () {
     }
 
     function fill_numbers() {
-        var numbered_boxes = boxes.filter(is_numbered);
-        var numbers = d3.range(1, numbered_boxes[0].length+1);
-        numbered_boxes.append('text').data(numbers).enter().attr('id', function(d) { return 'a' + d;})
+        // remove the old ones
+        svg.selectAll('text').remove();
+
+        var texts = svg.selectAll('text')
+            .data(boxXY)
+            .enter()
+            .append('text')
+            .filter(is_numbered)
+            .attr('class', 'number')
+            .text(function(d, i) { return i; })
+            .attr('x', function(d){ return xPosition(d) + 5; })
+            .attr('y', function(d) { return yPosition(d) + stroke + 5});
+        console.log(texts);
     }
 
     fill_numbers();
@@ -99,6 +109,7 @@ $(document).ready(function () {
             boxes.filter(function (d1) {
                 return is_symmetric(d1, d);
             }).attr('fill', newColor);
+            fill_numbers();
         });
 
 
