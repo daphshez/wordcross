@@ -19,7 +19,14 @@ $(document).ready(function () {
     function id2x(id) { return id % gridSize;  }
     function id2y(id) { return Math.floor(id / gridSize);  }
     function xy2id (x, y) {  return x * squareSize + y;   }
-    function xPosition(d) { return stroke + d.x * (stroke + squareSize); }
+    function xPosition(d) {
+        if (rtl) {
+            dx = gridSize - 1 - d.x;
+        } else {
+            dx = d.x;
+        }
+        return stroke + dx * (stroke + squareSize);
+    }
     function yPosition(d) { return stroke + d.y * (stroke + squareSize); }
 
     // create an array of box data
@@ -71,16 +78,11 @@ $(document).ready(function () {
     function is_numbered(d, id) {
         if (is_black(id)) return false;
 
-            // horizontals
-        if (rtl) {
-            if (d.x == gridSize - 1 && !is_black(id - 1)) return true;
-            if (d.x > 0 && d.x < gridSize - 1 && is_black(id + 1) && is_black(id - 1)) return true;
-        } else {
-            // case 1: first in row
-            if (d.x == 0 && !is_black(id + 1)) return true;
-            // case 2: 2nd in row - to (n-1)th in row
-            if (d.x > 0 && d.x < gridSize - 1 && is_black(id - 1) && !is_black(id + 1)) return true;
-        }
+        // case 1: first in row
+        if (d.x == 0 && !is_black(id + 1)) return true;
+        // case 2: 2nd in row - to (n-1)th in row
+        if (d.x > 0 && d.x < gridSize - 1 && is_black(id - 1) && !is_black(id + 1)) return true;
+
         // verticals
         if (d.y == 0 && !is_black(id + gridSize)) return true;
         if (d.y > 0 && d.y < gridSize - 1 && is_black(id - gridSize) && !is_black(id + gridSize)) return true;
