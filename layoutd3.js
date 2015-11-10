@@ -101,7 +101,7 @@ $(document).ready(function () {
             .append('text')
             .filter(is_numbered)
             .attr('class', 'number')
-            .text(function(d, i) { return i; })
+            .text(function(d, i) { return i + 1; })
             .attr('x', function(d){
                 if (rtl) {
                     return xPosition(d) + squareSize - 7;
