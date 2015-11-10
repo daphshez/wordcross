@@ -1,11 +1,15 @@
-// http://knowledgestockpile.blogspot.co.uk/2012/01/using-d3js-to-draw-grid.html
-// http://knowledgestockpile.blogspot.co.uk/2012/01/using-d3js-to-draw-grid.html
 $(document).ready(function () {
-    var gridSize = 16;
+    var urlParameters = {};
+    $.each( decodeURIComponent(window.location.search.substring(1)).split('&'), function(i, s){
+        var parts = s.split('=');
+        urlParameters[parts[0]] = parts[1] === undefined ? true : parts[1];
+    });
+
+    var gridSize = urlParameters['gridSize'] | 16;
     var squareSize = 50;
     var stroke = 10;
     // types: none, rotation_180, reflection_xy
-    var symmetry = 'rotation_180';
+    var symmetry = urlParameters['symmetry'] === undefined ? 'rotation_180' : urlParameters['symmetry'];
     var rtl = $('body').attr('dir') == 'rtl';
 
     var size = stroke * (gridSize + 1) + squareSize * gridSize;
@@ -16,9 +20,18 @@ $(document).ready(function () {
     svg.append('rect').attr('height', '100%').attr('width', '100%').attr('fill', 'black');
 
     // some helper function
-    function id2x(id) { return id % gridSize;  }
-    function id2y(id) { return Math.floor(id / gridSize);  }
-    function xy2id (x, y) {  return x * squareSize + y;   }
+    function id2x(id) {
+        return id % gridSize;
+    }
+
+    function id2y(id) {
+        return Math.floor(id / gridSize);
+    }
+
+    function xy2id(x, y) {
+        return x * squareSize + y;
+    }
+
     function xPosition(d) {
         if (rtl) {
             dx = gridSize - 1 - d.x;
@@ -27,7 +40,10 @@ $(document).ready(function () {
         }
         return stroke + dx * (stroke + squareSize);
     }
-    function yPosition(d) { return stroke + d.y * (stroke + squareSize); }
+
+    function yPosition(d) {
+        return stroke + d.y * (stroke + squareSize);
+    }
 
     // create an array of box data
     var boxXY = d3.range(0, gridSize * gridSize).map(function (d) {
@@ -101,26 +117,29 @@ $(document).ready(function () {
             .append('text')
             .filter(is_numbered)
             .attr('class', 'number')
-            .text(function(d, i) { return i + 1; })
-            .attr('x', function(d){
+            .text(function (d, i) {
+                return i + 1;
+            })
+            .attr('x', function (d) {
                 if (rtl) {
                     return xPosition(d) + squareSize - 7;
                 }
                 return xPosition(d) + 5;
             })
-            .attr('y', function(d) { return yPosition(d) + stroke + 5});
-        console.log(texts);
+            .attr('y', function (d) {
+                return yPosition(d) + stroke + 5
+            });
     }
 
     fill_numbers();
 
     boxes.on('click', function (d, id) {
-            var newColor = id2Color(id) == 'white' ? 'black' : 'white';
-            boxes.filter(function (d1) {
-                return is_symmetric(d1, d);
-            }).attr('fill', newColor);
-            fill_numbers();
-        });
+        var newColor = id2Color(id) == 'white' ? 'black' : 'white';
+        boxes.filter(function (d1) {
+            return is_symmetric(d1, d);
+        }).attr('fill', newColor);
+        fill_numbers();
+    });
 
 
 });
